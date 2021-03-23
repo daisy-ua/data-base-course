@@ -1,12 +1,3 @@
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-
-
-# useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
-from scrapy.exporters import XmlItemExporter
 from lxml import etree
 
 
@@ -16,18 +7,22 @@ class Lab1Pipeline:
         self.root = etree.Element("data")
 
     def close_spider(self, spider):
-        file = open('/home/supervisor/edu/database/lab1/results/isport_o.xml', 'wb')
-        file.write(etree.tostring(
-            self.root, encoding="UTF-8",
-            pretty_print=True
-        ))
+        with open('../../../results/%s.xml' % spider.name, 'wb') as file:
+            file.write(etree.tostring(self.root, encoding="UTF-8", pretty_print=True, xml_declaration=True))
         file.close()
 
     def process_item(self, item, spider):
-        page = etree.SubElement(self.root, "page", url=item["url"])
-        for text in item['texts']:
-            etree.SubElement(page, 'fragment', type='text').text = text
-        for image in item['images']:
-            etree.SubElement(page, 'fragment', type='image').text = image
-        self.root.append(page)
+        if spider.name == 'isport':
+            page = etree.SubElement(self.root, "page", url=item["url"])
+            for text in item['texts']:
+                etree.SubElement(page, 'fragment', type='text').text = text.strip()
+            for image in item['images']:
+                etree.SubElement(page, 'fragment', type='image').text = image
+            self.root.append(page)
+        else:
+            product = etree.SubElement(self.root, "product")
+            etree.SubElement(product, 'description', type='text').text = item['description']
+            etree.SubElement(product, 'price', type='text').text = item['price']
+            etree.SubElement(product, 'image', type='image').text = item['image']
+            self.root.append(product)
         return item

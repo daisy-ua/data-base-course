@@ -8,9 +8,7 @@ class ISportSpider(scrapy.Spider):
     selectors = {
         'text': '//*[not(self::script) and not(self::noscript) and not(self::style)]/text()[normalize-space()]',
         'image': '//img/@data-src',
-        # 'url': "//a/@href[starts-with(., '" + start_urls[0] + "')or starts-with(., '/')]"
         'url': "//a/@href[starts-with(., '{}') or starts-with(., '/')]".format(start_urls[0])
-
     }
 
     def parse(self, response):

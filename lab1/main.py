@@ -1,16 +1,19 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from lxml import etree
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def print_all_urls():
+    root = etree.parse('results/isport.xml')
+    urls = root.xpath('//page')
+    for url in urls:
+        print(f'{url.xpath("@url")[0]}')
 
 
-# Press the green button in the gutter to run the script.
+def get_xhtml_page():
+    transform = etree.XSLT(etree.parse('results/transformer.xsl'))
+    result = transform(etree.parse('results/portativ.xml'))
+    result.write('results/portativ.xhtml', pretty_print=True, encoding='UTF-8')
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    print_all_urls()
+    get_xhtml_page()
